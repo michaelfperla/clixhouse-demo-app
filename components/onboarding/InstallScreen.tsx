@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { useOnboardingStore } from "@/lib/stores/onboarding-store";
 import { usePointsStore } from "@/lib/stores/points-store";
@@ -15,20 +15,6 @@ interface InstallScreenProps {
 export function InstallScreen({ isActive, onComplete }: InstallScreenProps) {
   const { isInstallable, isIOS, isInstalled, prompt } = usePWAInstall();
 
-  // Debug info - remove after fixing
-  const [swStatus, setSwStatus] = useState("checking...");
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistration().then(reg => {
-        setSwStatus(reg ? `SW: active` : "SW: none");
-      }).catch(() => setSwStatus("SW: error"));
-    } else {
-      setSwStatus("SW: unsupported");
-    }
-  }, []);
-
-  const debugInfo = `${swStatus}, installable: ${isInstallable}, iOS: ${isIOS}, prompt: ${typeof window !== 'undefined' && !!window.__pwaInstallPrompt}`;
   const { markInstalled } = useOnboardingStore();
   const { awardInstallBonus } = usePointsStore();
   const [isInstalling, setIsInstalling] = useState(false);
@@ -108,8 +94,22 @@ export function InstallScreen({ isActive, onComplete }: InstallScreenProps) {
             className="mt-4 text-gray-500 text-center animate-fade-slide-up"
             style={{ animationDelay: "0.6s", animationFillMode: "backwards" }}
           >
-            Encuentra la app en tu pantalla de inicio
+            Cierra este navegador y abre la app desde tu pantalla de inicio
           </p>
+
+          {/* Visual hint */}
+          <div
+            className="mt-6 flex items-center gap-3 bg-white rounded-2xl px-5 py-4 shadow-elevated animate-fade-slide-up"
+            style={{ animationDelay: "0.8s", animationFillMode: "backwards" }}
+          >
+            <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center shadow-sm">
+              <span className="text-white font-bold text-lg">CX</span>
+            </div>
+            <div className="text-left">
+              <p className="font-semibold text-gray-900">CLIXHOUSE</p>
+              <p className="text-xs text-gray-400">Busca este icono</p>
+            </div>
+          </div>
         </div>
       </>
     );
@@ -209,11 +209,6 @@ export function InstallScreen({ isActive, onComplete }: InstallScreenProps) {
         >
           Ahora no
         </button>
-
-        {/* Debug info - remove after fixing */}
-        <p className="mt-4 text-xs text-gray-300 text-center break-all">
-          {debugInfo}
-        </p>
       </div>
     </div>
   );
