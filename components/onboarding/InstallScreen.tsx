@@ -13,7 +13,10 @@ interface InstallScreenProps {
 }
 
 export function InstallScreen({ isActive, onComplete }: InstallScreenProps) {
-  const { isInstallable, isIOS, prompt } = usePWAInstall();
+  const { isInstallable, isIOS, isInstalled, prompt } = usePWAInstall();
+
+  // Debug info - remove after fixing
+  const debugInfo = `installable: ${isInstallable}, iOS: ${isIOS}, installed: ${isInstalled}, prompt: ${typeof window !== 'undefined' && !!window.__pwaInstallPrompt}`;
   const { markInstalled } = useOnboardingStore();
   const { awardInstallBonus } = usePointsStore();
   const [isInstalling, setIsInstalling] = useState(false);
@@ -194,6 +197,11 @@ export function InstallScreen({ isActive, onComplete }: InstallScreenProps) {
         >
           Ahora no
         </button>
+
+        {/* Debug info - remove after fixing */}
+        <p className="mt-4 text-xs text-gray-300 text-center break-all">
+          {debugInfo}
+        </p>
       </div>
     </div>
   );
