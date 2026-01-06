@@ -32,6 +32,17 @@ export default function RootLayout({
       <head>
         <meta name="google" content="notranslate" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        {/* Capture PWA install prompt early, before React hydrates */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.addEventListener('beforeinstallprompt', function(e) {
+                e.preventDefault();
+                window.__pwaInstallPrompt = e;
+              });
+            `,
+          }}
+        />
       </head>
       <body className="bg-primary-50 min-h-screen antialiased">
         {children}

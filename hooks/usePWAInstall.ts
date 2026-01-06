@@ -7,6 +7,13 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+// Store the event globally in case it fires before React mounts
+declare global {
+  interface Window {
+    __pwaInstallPrompt?: BeforeInstallPromptEvent;
+  }
+}
+
 interface UsePWAInstallReturn {
   isInstallable: boolean;
   isInstalled: boolean;
@@ -39,16 +46,24 @@ export function usePWAInstall(): UsePWAInstallReturn {
       return;
     }
 
+    // Check if event was captured before React mounted
+    if (window.__pwaInstallPrompt) {
+      setDeferredPrompt(window.__pwaInstallPrompt);
+    }
+
     // Listen for beforeinstallprompt (Chromium browsers)
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      const promptEvent = e as BeforeInstallPromptEvent;
+      window.__pwaInstallPrompt = promptEvent;
+      setDeferredPrompt(promptEvent);
     };
 
     // Listen for successful install
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setDeferredPrompt(null);
+      window.__pwaInstallPrompt = undefined;
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstall);
