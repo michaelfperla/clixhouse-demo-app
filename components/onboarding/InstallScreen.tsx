@@ -28,7 +28,7 @@ export function InstallScreen({ isActive, onComplete }: InstallScreenProps) {
       markInstalled();
       awardInstallBonus();
       setShowSuccess(true);
-      setTimeout(onComplete, 2500);
+      // No auto-redirect - let user read instructions
     } else {
       setIsInstalling(false);
     }
@@ -110,6 +110,15 @@ export function InstallScreen({ isActive, onComplete }: InstallScreenProps) {
               <p className="text-xs text-gray-400">Busca este icono</p>
             </div>
           </div>
+
+          {/* Continue button */}
+          <button
+            onClick={onComplete}
+            className="mt-8 px-8 py-3 bg-gray-100 text-gray-600 rounded-full font-medium animate-fade-slide-up hover:bg-gray-200 transition-colors"
+            style={{ animationDelay: "1s", animationFillMode: "backwards" }}
+          >
+            Entendido
+          </button>
         </div>
       </>
     );
