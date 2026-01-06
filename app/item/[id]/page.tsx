@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, Star, Plus, Minus, Check } from "lucide-react";
 import { getMenuItemById } from "@/lib/menu-data";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { usePointsStore } from "@/lib/stores/points-store";
+import { spring, fadeUp, staggerContainer } from "@/lib/motion";
 
 export default function ItemDetailPage() {
   const params = useParams();
@@ -13,36 +16,23 @@ export default function ItemDetailPage() {
   const addItem = useCartStore((state) => state.addItem);
   const cartPoints = useCartStore((state) => state.totalPoints());
 
-  // Preview: show actual points + what they'd earn from cart
   const displayPoints = actualPoints + cartPoints;
 
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
-  const [pointsAnimating, setPointsAnimating] = useState(false);
-  const prevPointsRef = useRef(displayPoints);
-
-  // Animate points when they increase
-  useEffect(() => {
-    if (displayPoints > prevPointsRef.current) {
-      setPointsAnimating(true);
-      const timer = setTimeout(() => setPointsAnimating(false), 400);
-      return () => clearTimeout(timer);
-    }
-    prevPointsRef.current = displayPoints;
-  }, [displayPoints]);
 
   const item = getMenuItemById(params.id as string);
 
   if (!item) {
     return (
-      <div className="min-h-screen bg-primary-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500">Producto no encontrado</p>
+          <p className="text-slate-500">Producto no encontrado</p>
           <button
             onClick={() => router.push("/menu")}
-            className="mt-4 text-primary-500 underline"
+            className="mt-4 text-primary-600 underline"
           >
-            Volver al menu
+            Volver al menú
           </button>
         </div>
       </div>
@@ -57,168 +47,145 @@ export default function ItemDetailPage() {
     addItem(item, quantity);
     setTimeout(() => {
       router.push("/menu");
-    }, 400);
+    }, 500);
   };
 
   return (
-    <div className="min-h-screen bg-primary-50">
-      {/* Hero Section */}
-      <div className="relative h-72 bg-gradient-to-br from-primary-200 via-primary-300 to-primary-400">
-        {/* Back Button */}
-        <button
-          onClick={() => router.back()}
-          className="absolute top-4 left-4 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg z-10"
-        >
-          <svg
-            className="w-6 h-6 text-gray-700"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* Back Button - Fixed at top */}
+      <button
+        onClick={() => router.back()}
+        className="fixed top-4 left-4 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg z-50"
+      >
+        <ChevronLeft className="w-6 h-6 text-slate-700" />
+      </button>
+
+      {/* Hero Image */}
+      <div
+        className="relative w-full flex-shrink-0 bg-slate-200 overflow-hidden"
+        style={{ height: '224px', minHeight: '224px' }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={item.image}
+          alt={item.name}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            console.log('Image failed to load:', item.image);
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 
         {/* Points Badge */}
-        <div className={`absolute top-4 right-4 flex items-center gap-2 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full shadow-lg transition-transform ${
-          pointsAnimating ? "scale-110" : ""
-        }`}>
-          <span className={`text-lg ${pointsAnimating ? "animate-star-sparkle" : ""}`}>⭐</span>
-          <span className={`font-bold text-accent-700 transition-all ${
-            pointsAnimating ? "text-accent-500 scale-125" : ""
-          }`}>{displayPoints}</span>
-        </div>
-
-        {/* Emoji */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-9xl animate-bounce-in drop-shadow-lg">
-            {item.emoji}
-          </span>
+        <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full shadow-lg">
+          <Star className="w-4 h-4 text-gold-500" fill="currentColor" />
+          <span className="font-bold text-gold-600 text-sm">{displayPoints}</span>
         </div>
 
         {/* Popular Badge */}
         {item.popular && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-            <span className="bg-accent-500 text-white text-sm px-4 py-1 rounded-full font-medium shadow-lg">
-              ⭐ Popular
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
+            <span className="bg-gold-500 text-white text-xs px-3 py-1 rounded-full font-medium shadow-lg flex items-center gap-1">
+              <Star className="w-3 h-3" fill="currentColor" />
+              Popular
             </span>
           </div>
         )}
       </div>
 
-      {/* Content */}
-      <div className="px-6 py-6 -mt-4 bg-primary-50 rounded-t-3xl relative">
-        {/* Name and Price */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{item.name}</h1>
-            <p className="text-gray-500 mt-1">{item.description}</p>
+      {/* Content Card */}
+      <motion.div
+        className="flex-1 bg-white rounded-t-3xl -mt-4 relative z-10 px-5 pt-5 pb-28"
+        variants={staggerContainer(0.08)}
+        initial="hidden"
+        animate="visible"
+      >
+        {/* Title and Price */}
+        <motion.div className="flex justify-between items-start gap-3" variants={fadeUp}>
+          <div className="flex-1">
+            <h1 className="text-xl font-heading font-bold text-slate-800">{item.name}</h1>
+            <p className="text-slate-500 text-sm mt-1">{item.description}</p>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold text-primary-600">${item.price}</p>
-            <p className="text-sm text-accent-600">+{item.pointsEarned} pts</p>
+            <p className="text-xl font-bold text-primary-600">${item.price}</p>
+            <p className="text-xs text-gold-600">+{item.pointsEarned} pts</p>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Quantity Selector */}
-        <div className="mt-8">
-          <p className="text-sm font-medium text-gray-700 mb-3">Cantidad</p>
+        {/* Quantity */}
+        <motion.div className="mt-6" variants={fadeUp}>
+          <p className="text-sm font-medium text-slate-600 mb-3">Cantidad</p>
           <div className="flex items-center gap-4">
-            <button
+            <motion.button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform"
+              className="w-11 h-11 bg-slate-100 rounded-full flex items-center justify-center"
+              whileTap={{ scale: 0.9 }}
             >
-              <svg
-                className="w-6 h-6 text-gray-700"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M20 12H4"
-                />
-              </svg>
-            </button>
-            <span className="text-3xl font-bold text-gray-900 w-12 text-center">
+              <Minus className="w-5 h-5 text-slate-600" />
+            </motion.button>
+            <span className="text-2xl font-bold text-slate-800 w-10 text-center">
               {quantity}
             </span>
-            <button
+            <motion.button
               onClick={() => setQuantity(quantity + 1)}
-              className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform"
+              className="w-11 h-11 bg-primary-600 rounded-full flex items-center justify-center shadow"
+              whileTap={{ scale: 0.9 }}
             >
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-            </button>
+              <Plus className="w-5 h-5 text-white" />
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Points Preview */}
-        <div className="mt-6 bg-accent-50 rounded-2xl p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-accent-200 rounded-full flex items-center justify-center">
-              <span className="text-xl">⭐</span>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Ganarás</p>
-              <p className="font-bold text-accent-700">{totalPoints} puntos</p>
-            </div>
+        <motion.div
+          className="mt-6 bg-gold-50 rounded-xl p-4 flex items-center gap-3"
+          variants={fadeUp}
+        >
+          <div className="w-10 h-10 bg-gold-100 rounded-full flex items-center justify-center">
+            <Star className="w-5 h-5 text-gold-600" fill="currentColor" />
           </div>
-        </div>
-      </div>
+          <div>
+            <p className="text-xs text-slate-500">Ganarás</p>
+            <p className="font-bold text-gold-600">{totalPoints} puntos</p>
+          </div>
+        </motion.div>
+      </motion.div>
 
       {/* Fixed CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100">
-        <button
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100 z-20">
+        <motion.button
           onClick={handleAddToCart}
           disabled={isAdding}
-          className={`w-full py-4 rounded-full font-bold text-lg flex items-center justify-center gap-2 transition-all duration-300 ${
-            isAdding
-              ? "bg-green-500 text-white"
-              : "bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow animate-glow-pulse"
+          className={`w-full py-4 rounded-full font-bold text-lg flex items-center justify-center gap-2 text-white shadow-lg ${
+            isAdding ? "bg-green-500" : "bg-gradient-cta"
           }`}
+          whileTap={{ scale: 0.98 }}
         >
-          {isAdding ? (
-            <>
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          <AnimatePresence mode="wait">
+            {isAdding ? (
+              <motion.span
+                key="added"
+                className="flex items-center gap-2"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Agregado
-            </>
-          ) : (
-            <>
-              Agregar ${totalPrice}
-            </>
-          )}
-        </button>
+                <Check className="w-5 h-5" />
+                Agregado
+              </motion.span>
+            ) : (
+              <motion.span
+                key="add"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                Agregar ${totalPrice}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </motion.button>
       </div>
     </div>
   );

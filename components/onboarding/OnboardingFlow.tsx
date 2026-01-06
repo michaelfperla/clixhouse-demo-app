@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { useOnboardingStore } from "@/lib/stores/onboarding-store";
 import { WelcomeScreen } from "./WelcomeScreen";
 import { OrderingScreen } from "./OrderingScreen";
@@ -10,90 +11,131 @@ import { InstallScreen } from "./InstallScreen";
 import { ProgressDots } from "./ProgressDots";
 import { SkipButton } from "./SkipButton";
 
+const SCREENS = [WelcomeScreen, OrderingScreen, RewardsScreen, InstallScreen];
+const SWIPE_THRESHOLD = 50;
+const SWIPE_VELOCITY = 500;
+
+// Slide variants for page transitions - snappy feel
+const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 300 : -300,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction < 0 ? 300 : -300,
+    opacity: 0,
+  }),
+};
+
+// Fast transition for screen changes
+const screenTransition = {
+  type: "tween" as const,
+  duration: 0.25,
+  ease: "easeOut" as const,
+};
+
 export function OnboardingFlow() {
   const router = useRouter();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [currentScreen, setCurrentScreen] = useState(0);
+  const [[currentScreen, direction], setPage] = useState([0, 0]);
   const { skipOnboarding, completeOnboarding } = useOnboardingStore();
 
-  const totalScreens = 4;
+  const totalScreens = SCREENS.length;
 
-  // Navigate to menu after onboarding
+  const paginate = useCallback((newDirection: number) => {
+    const nextScreen = currentScreen + newDirection;
+    if (nextScreen >= 0 && nextScreen < totalScreens) {
+      setPage([nextScreen, newDirection]);
+    }
+  }, [currentScreen, totalScreens]);
+
   const handleComplete = useCallback(() => {
     completeOnboarding();
     router.push("/menu");
   }, [completeOnboarding, router]);
 
-  // Handle skip button
   const handleSkip = useCallback(() => {
     skipOnboarding(currentScreen);
     router.push("/menu");
   }, [currentScreen, skipOnboarding, router]);
 
-  // Track scroll position to update current screen
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+  const handleDragEnd = useCallback(
+    (e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      const { offset, velocity } = info;
 
-    const handleScroll = () => {
-      const scrollLeft = container.scrollLeft;
-      const screenWidth = container.offsetWidth;
-      const newScreen = Math.round(scrollLeft / screenWidth);
-      setCurrentScreen(newScreen);
-    };
+      // Swipe left (next screen)
+      if (offset.x < -SWIPE_THRESHOLD || velocity.x < -SWIPE_VELOCITY) {
+        if (currentScreen < totalScreens - 1) {
+          paginate(1);
+        }
+      }
+      // Swipe right (previous screen)
+      else if (offset.x > SWIPE_THRESHOLD || velocity.x > SWIPE_VELOCITY) {
+        if (currentScreen > 0) {
+          paginate(-1);
+        }
+      }
+    },
+    [currentScreen, totalScreens, paginate]
+  );
 
-    container.addEventListener("scroll", handleScroll, { passive: true });
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollToScreen = (index: number) => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    container.scrollTo({
-      left: index * container.offsetWidth,
-      behavior: "smooth",
-    });
-  };
+  const CurrentScreenComponent = SCREENS[currentScreen];
 
   return (
-    <div className="fixed inset-0 bg-[#fff7ed] z-50">
+    <div className="fixed inset-0 bg-slate-50 z-50 overflow-hidden">
       {/* Skip button (hidden on last screen) */}
       {currentScreen < totalScreens - 1 && <SkipButton onClick={handleSkip} />}
 
-      {/* Swipeable container with CSS scroll-snap */}
-      <div
-        ref={containerRef}
-        className="flex h-full overflow-x-auto snap-x snap-mandatory scrollbar-hide"
-        style={{ scrollBehavior: "smooth" }}
-      >
-        {/* Screen 1: Welcome */}
-        <div className="flex-shrink-0 w-full h-full snap-center" style={{ scrollSnapStop: "always" }}>
-          <WelcomeScreen isActive={currentScreen === 0} />
-        </div>
-
-        {/* Screen 2: Ordering */}
-        <div className="flex-shrink-0 w-full h-full snap-center" style={{ scrollSnapStop: "always" }}>
-          <OrderingScreen isActive={currentScreen === 1} />
-        </div>
-
-        {/* Screen 3: Rewards */}
-        <div className="flex-shrink-0 w-full h-full snap-center" style={{ scrollSnapStop: "always" }}>
-          <RewardsScreen isActive={currentScreen === 2} />
-        </div>
-
-        {/* Screen 4: Install */}
-        <div className="flex-shrink-0 w-full h-full snap-center" style={{ scrollSnapStop: "always" }}>
-          <InstallScreen
-            isActive={currentScreen === 3}
+      {/* Swipeable screens */}
+      <AnimatePresence initial={false} custom={direction}>
+        <motion.div
+          key={currentScreen}
+          custom={direction}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={screenTransition}
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.15}
+          onDragEnd={handleDragEnd}
+          className="absolute inset-0 cursor-grab active:cursor-grabbing"
+        >
+          <CurrentScreenComponent
+            isActive={true}
             onComplete={handleComplete}
           />
-        </div>
-      </div>
+        </motion.div>
+      </AnimatePresence>
 
-      {/* Progress dots (shown after welcome screen, hidden on install screen) */}
+      {/* Progress dots (shown between first and last screens) */}
       {currentScreen > 0 && currentScreen < totalScreens - 1 && (
         <ProgressDots total={totalScreens - 2} current={currentScreen - 1} />
+      )}
+
+      {/* Swipe hint on welcome screen */}
+      {currentScreen === 0 && (
+        <motion.div
+          className="absolute bottom-10 left-0 right-0 flex justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+        >
+          <motion.div
+            className="flex items-center gap-1 text-slate-400 text-sm"
+            animate={{ x: [0, 8, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+          >
+            <span>Desliza</span>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </motion.div>
+        </motion.div>
       )}
     </div>
   );

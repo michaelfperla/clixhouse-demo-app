@@ -1,84 +1,53 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { spring, fadeUp, staggerContainer, popIn } from "@/lib/motion";
+
 interface WelcomeScreenProps {
   isActive: boolean;
+  onComplete?: () => void;
 }
 
 export function WelcomeScreen({ isActive }: WelcomeScreenProps) {
   return (
-    <div className="flex flex-col items-center justify-center h-full px-8 bg-[#fff7ed]">
-      {/* Floating logo with gradient and glow */}
-      <div
-        className={`${isActive ? "animate-bounce-in" : "opacity-0"}`}
-      >
-        <div className={`relative ${isActive ? "animate-float" : ""}`}>
-          {/* Glow effect behind logo */}
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-600 rounded-[2rem] blur-xl opacity-40 scale-110" />
-
-          {/* Main logo container */}
-          <div className="relative w-36 h-36 bg-gradient-to-br from-orange-400 to-orange-600 rounded-[2rem] flex items-center justify-center shadow-elevated-lg">
-            {/* CX text logo */}
-            <span className="text-5xl font-black text-white tracking-tight">
-              CX
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Restaurant name with better hierarchy */}
-      <div className="mt-10 text-center">
-        <p
-          className={`text-lg font-medium text-gray-500 tracking-wide ${
-            isActive ? "animate-fade-slide-up" : "opacity-0"
-          }`}
-          style={{ animationDelay: "0.4s", animationFillMode: "backwards" }}
+    <motion.div
+      className="flex flex-col items-center justify-center h-full px-6 bg-slate-50"
+      variants={staggerContainer(0.15)}
+      initial="hidden"
+      animate={isActive ? "visible" : "hidden"}
+    >
+      {/* Logo */}
+      <motion.div variants={popIn} transition={spring.bouncy}>
+        <motion.div
+          className="w-[144px] h-[144px] bg-gradient-cta rounded-xl flex items-center justify-center shadow-lg"
+          animate={isActive ? { y: [0, -8, 0] } : {}}
+          transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
         >
+          <span className="text-5xl font-black text-white tracking-tight">CX</span>
+        </motion.div>
+      </motion.div>
+
+      {/* Text content */}
+      <motion.div className="mt-10 text-center" variants={fadeUp}>
+        <p className="text-lg font-medium text-slate-500 tracking-wide">
           Bienvenido a
         </p>
+      </motion.div>
 
-        <h1
-          className={`mt-1 text-4xl font-bold text-orange-500 ${
-            isActive ? "animate-fade-slide-up" : "opacity-0"
-          }`}
-          style={{ animationDelay: "0.6s", animationFillMode: "backwards" }}
-        >
-          CLIXHOUSE
-        </h1>
-        <p
-          className={`text-sm font-medium text-gray-400 tracking-widest uppercase ${
-            isActive ? "animate-fade-slide-up" : "opacity-0"
-          }`}
-          style={{ animationDelay: "0.7s", animationFillMode: "backwards" }}
-        >
-          Restaurant
-        </p>
-      </div>
-
-      {/* Swipe hint with animation */}
-      <div
-        className={`mt-12 flex flex-col items-center ${
-          isActive ? "animate-fade-slide-up" : "opacity-0"
-        }`}
-        style={{ animationDelay: "1s", animationFillMode: "backwards" }}
+      <motion.h1
+        className="mt-1 text-4xl font-heading font-bold text-primary-600"
+        variants={fadeUp}
+        transition={spring.gentle}
       >
-        <p className="text-sm text-gray-400 mb-2">
-          Desliza para continuar
-        </p>
-        {/* Animated arrow */}
-        <svg
-          className="w-5 h-5 text-gray-300 animate-pulse"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-      </div>
-    </div>
+        CLIXHOUSE
+      </motion.h1>
+
+      <motion.p
+        className="text-sm font-medium text-slate-400 tracking-widest uppercase"
+        variants={fadeUp}
+      >
+        Restaurant
+      </motion.p>
+    </motion.div>
   );
 }

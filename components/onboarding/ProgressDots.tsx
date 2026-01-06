@@ -1,5 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { spring } from "@/lib/motion";
+
 interface ProgressDotsProps {
   total: number;
   current: number;
@@ -7,24 +10,24 @@ interface ProgressDotsProps {
 
 export function ProgressDots({ total, current }: ProgressDotsProps) {
   return (
-    <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-2.5">
+    <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-2">
       {Array.from({ length: total }).map((_, index) => {
         const isActive = index === current;
         const isPast = index < current;
 
         return (
-          <div
+          <motion.div
             key={index}
-            className={`h-2.5 rounded-full transition-all duration-300 ${
-              isActive
-                ? "w-8 dot-active shadow-sm"
+            className="h-2 rounded-full"
+            animate={{
+              width: isActive ? 24 : 8,
+              backgroundColor: isActive
+                ? "#d63f2a"
                 : isPast
-                ? "w-2.5 bg-primary-300"
-                : "w-2.5 dot-inactive"
-            }`}
-            style={{
-              transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+                ? "#f87171"
+                : "#cbd5e1",
             }}
+            transition={spring.snappy}
           />
         );
       })}

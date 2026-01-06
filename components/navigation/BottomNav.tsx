@@ -1,91 +1,98 @@
 "use client";
 
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { Home, ShoppingBag, Star } from "lucide-react";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { spring } from "@/lib/motion";
 
 interface BottomNavProps {
   activeTab: "menu" | "cart" | "points";
 }
 
+const tabs = [
+  { id: "menu", href: "/menu", icon: Home, label: "Menú" },
+  { id: "cart", href: "/cart", icon: ShoppingBag, label: "Carrito" },
+  { id: "points", href: "/points", icon: Star, label: "Puntos" },
+] as const;
+
 export function BottomNav({ activeTab }: BottomNavProps) {
   const totalItems = useCartStore((state) => state.totalItems());
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 z-40">
+    <motion.nav
+      className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-3 z-40"
+      initial={{ y: 100 }}
+      animate={{ y: 0 }}
+      transition={spring.snappy}
+    >
       <div className="flex justify-around">
-        <Link
-          href="/menu"
-          className={`flex flex-col items-center ${
-            activeTab === "menu" ? "text-primary-500" : "text-gray-400"
-          }`}
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-            />
-          </svg>
-          <span className="text-xs mt-1">Menu</span>
-        </Link>
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
 
-        <Link
-          href="/cart"
-          className={`flex flex-col items-center relative ${
-            activeTab === "cart" ? "text-primary-500" : "text-gray-400"
-          }`}
-        >
-          <div className="relative">
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          return (
+            <Link
+              key={tab.id}
+              href={tab.href}
+              className="flex flex-col items-center relative"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-              />
-            </svg>
-            {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-primary-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold animate-bounce-in">
-                {totalItems > 9 ? "9+" : totalItems}
-              </span>
-            )}
-          </div>
-          <span className="text-xs mt-1">Carrito</span>
-        </Link>
+              <motion.div
+                className="relative"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                transition={spring.snappy}
+              >
+                <motion.div
+                  animate={{
+                    color: isActive ? "#d63f2a" : "#94a3b8",
+                  }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Icon className="w-6 h-6" />
+                </motion.div>
 
-        <Link
-          href="/points"
-          className={`flex flex-col items-center ${
-            activeTab === "points" ? "text-primary-500" : "text-gray-400"
-          }`}
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-            />
-          </svg>
-          <span className="text-xs mt-1">Puntos</span>
-        </Link>
+                {/* Cart badge */}
+                {tab.id === "cart" && (
+                  <AnimatePresence>
+                    {totalItems > 0 && (
+                      <motion.span
+                        className="absolute -top-2 -right-2 bg-primary-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold"
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={spring.bouncy}
+                        key={totalItems}
+                      >
+                        {totalItems > 9 ? "9+" : totalItems}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                )}
+              </motion.div>
+
+              <motion.span
+                className="text-xs mt-1"
+                animate={{
+                  color: isActive ? "#d63f2a" : "#94a3b8",
+                }}
+                transition={{ duration: 0.2 }}
+              >
+                {tab.label}
+              </motion.span>
+
+              {/* Active indicator */}
+              {isActive && (
+                <motion.div
+                  className="absolute -bottom-3 w-1 h-1 bg-primary-600 rounded-full"
+                  layoutId="activeTab"
+                  transition={spring.snappy}
+                />
+              )}
+            </Link>
+          );
+        })}
       </div>
-    </nav>
+    </motion.nav>
   );
 }

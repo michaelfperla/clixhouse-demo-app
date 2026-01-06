@@ -1,5 +1,20 @@
 import type { Metadata, Viewport } from "next";
+import { Cormorant_Garamond, Montserrat } from "next/font/google";
 import "./globals.css";
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-montserrat",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "CLIXHOUSE Restaurant",
@@ -19,7 +34,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#f97316",
+  themeColor: "#d63f2a",
 };
 
 export default function RootLayout({
@@ -28,11 +43,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" translate="no">
+    <html lang="es" translate="no" className={`${cormorant.variable} ${montserrat.variable}`}>
       <head>
         <meta name="google" content="notranslate" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-        {/* Capture PWA install prompt early, before React hydrates */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -44,7 +58,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="bg-primary-50 min-h-screen antialiased">
+      <body className="bg-slate-50 min-h-screen antialiased font-body text-slate-800">
         {children}
       </body>
     </html>

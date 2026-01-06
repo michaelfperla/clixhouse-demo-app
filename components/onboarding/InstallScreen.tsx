@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Smartphone, Download, Check, Star } from "lucide-react";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { useOnboardingStore } from "@/lib/stores/onboarding-store";
 import { usePointsStore } from "@/lib/stores/points-store";
 import { IOSInstallGuide } from "./IOSInstallGuide";
 import { Confetti } from "@/components/ui/Confetti";
+import { spring, fadeUp, staggerContainer, scaleIn, popIn } from "@/lib/motion";
 
 interface InstallScreenProps {
   isActive: boolean;
@@ -13,8 +16,7 @@ interface InstallScreenProps {
 }
 
 export function InstallScreen({ isActive, onComplete }: InstallScreenProps) {
-  const { isInstallable, isIOS, isInstalled, prompt } = usePWAInstall();
-
+  const { isInstallable, isIOS, prompt } = usePWAInstall();
   const { markInstalled } = useOnboardingStore();
   const { awardInstallBonus } = usePointsStore();
   const [isInstalling, setIsInstalling] = useState(false);
@@ -28,197 +30,176 @@ export function InstallScreen({ isActive, onComplete }: InstallScreenProps) {
       markInstalled();
       awardInstallBonus();
       setShowSuccess(true);
-      // No auto-redirect - let user read instructions
     } else {
       setIsInstalling(false);
     }
   };
 
-  const handleSkipInstall = () => {
-    onComplete();
-  };
-
-  // Show iOS-specific instructions
   if (isIOS) {
     return <IOSInstallGuide isActive={isActive} onComplete={onComplete} />;
   }
 
-  // Show success state with confetti
   if (showSuccess) {
     return (
       <>
         <Confetti isActive={showSuccess} />
-        <div className="flex flex-col items-center justify-center h-full px-8">
-          {/* Success checkmark with gradient */}
-          <div className="relative animate-bounce-in">
-            {/* Glow behind */}
-            <div className="absolute inset-0 bg-gradient-primary rounded-full blur-xl opacity-40 scale-125" />
-
-            <div className="relative w-28 h-28 bg-gradient-primary rounded-full flex items-center justify-center shadow-elevated-lg">
-              <svg
-                className="w-14 h-14 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+        <motion.div
+          className="flex flex-col items-center justify-center h-full px-6 bg-slate-50"
+          variants={staggerContainer(0.15)}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Success checkmark */}
+          <motion.div variants={popIn} transition={spring.bouncy}>
+            <div className="w-[112px] h-[112px] bg-gradient-cta rounded-full flex items-center justify-center shadow-lg">
+              <motion.div
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={3}
-                  d="M5 13l4 4L19 7"
-                  className="animate-draw-check"
-                />
-              </svg>
+                <Check className="w-14 h-14 text-white" strokeWidth={3} />
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
 
-          <h2
-            className="mt-8 text-3xl font-bold text-gray-900 text-center animate-fade-slide-up"
-            style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
+          <motion.h2
+            className="mt-8 text-3xl font-heading font-bold text-slate-800 text-center"
+            variants={fadeUp}
           >
             ¡Instalado!
-          </h2>
+          </motion.h2>
 
-          {/* Points badge with golden accent */}
-          <div
-            className="mt-5 animate-fade-slide-up"
-            style={{ animationDelay: "0.4s", animationFillMode: "backwards" }}
+          {/* Points badge */}
+          <motion.div
+            className="mt-4 inline-flex items-center gap-2 bg-gold-400 px-5 py-2 rounded-full shadow"
+            variants={scaleIn}
+            transition={spring.bouncy}
           >
-            <div className="inline-flex items-center gap-2 bg-gradient-accent px-5 py-2.5 rounded-full shadow-glow-accent">
-              <span className="text-2xl font-bold text-white drop-shadow-sm">+50</span>
-              <span className="text-white/90 font-semibold">puntos</span>
-            </div>
-          </div>
+            <span className="text-2xl font-bold text-white">+50</span>
+            <span className="text-white/90 font-semibold">puntos</span>
+          </motion.div>
 
-          <p
-            className="mt-4 text-gray-500 text-center animate-fade-slide-up"
-            style={{ animationDelay: "0.6s", animationFillMode: "backwards" }}
+          <motion.p
+            className="mt-4 text-slate-500 text-center"
+            variants={fadeUp}
           >
             Cierra este navegador y abre la app desde tu pantalla de inicio
-          </p>
+          </motion.p>
 
           {/* Visual hint */}
-          <div
-            className="mt-6 flex items-center gap-3 bg-white rounded-2xl px-5 py-4 shadow-elevated animate-fade-slide-up"
-            style={{ animationDelay: "0.8s", animationFillMode: "backwards" }}
+          <motion.div
+            className="mt-6 flex items-center gap-3 bg-white rounded-lg px-5 py-4 shadow"
+            variants={fadeUp}
           >
-            <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center shadow-sm">
+            <div className="w-12 h-12 bg-gradient-cta rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">CX</span>
             </div>
             <div className="text-left">
-              <p className="font-semibold text-gray-900">CLIXHOUSE</p>
-              <p className="text-xs text-gray-400">Busca este icono</p>
+              <p className="font-semibold text-slate-800">CLIXHOUSE</p>
+              <p className="text-xs text-slate-400">Busca este icono</p>
             </div>
-          </div>
+          </motion.div>
 
           {/* Continue button */}
-          <button
+          <motion.button
             onClick={onComplete}
-            className="mt-8 px-8 py-3 bg-gray-100 text-gray-600 rounded-full font-medium animate-fade-slide-up hover:bg-gray-200 transition-colors"
-            style={{ animationDelay: "1s", animationFillMode: "backwards" }}
+            className="mt-8 px-8 py-3 bg-slate-100 text-slate-600 rounded-full font-medium hover:bg-slate-200 transition-colors"
+            variants={fadeUp}
+            whileTap={{ scale: 0.98 }}
           >
             Entendido
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       </>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-8">
-      {/* Phone illustration with download arrow */}
-      <div
-        className={`relative ${isActive ? "animate-fade-slide-up" : "opacity-0"}`}
-        style={{ animationFillMode: "backwards" }}
+    <motion.div
+      className="flex flex-col items-center justify-center h-full px-6 bg-slate-50"
+      variants={staggerContainer(0.12)}
+      initial="hidden"
+      animate={isActive ? "visible" : "hidden"}
+    >
+      {/* Phone illustration */}
+      <motion.div
+        className="w-[160px] h-[160px] bg-primary-100 rounded-full flex items-center justify-center shadow-md"
+        variants={scaleIn}
+        transition={spring.bouncy}
       >
-        {/* Glow behind */}
-        <div className="absolute inset-0 bg-primary-200 rounded-full blur-2xl opacity-60 scale-110" />
-
-        <div className="relative w-40 h-40 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center shadow-elevated">
-          {/* Phone with download icon */}
-          <div className="relative">
-            <svg
-              className="w-16 h-16 text-primary-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <rect x="5" y="2" width="14" height="20" rx="2" strokeWidth={1.5} />
-              <line x1="12" y1="18" x2="12" y2="18.01" strokeWidth={2} strokeLinecap="round" />
-            </svg>
-            {/* Download arrow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <svg className="w-6 h-6 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              </svg>
-            </div>
-          </div>
+        <div className="relative">
+          <Smartphone className="w-16 h-16 text-primary-600" strokeWidth={1.5} />
+          <motion.div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            animate={{ y: [0, 4, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+          >
+            <Download className="w-6 h-6 text-primary-500" strokeWidth={2.5} />
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
-      <h2
-        className={`mt-10 text-3xl font-bold text-gray-900 text-center ${
-          isActive ? "animate-fade-slide-up" : "opacity-0"
-        }`}
-        style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
+      <motion.h2
+        className="mt-10 text-3xl font-heading font-bold text-slate-800 text-center"
+        variants={fadeUp}
       >
         Agrega a tu pantalla
-      </h2>
+      </motion.h2>
 
-      {/* Bonus points highlight with golden accent */}
-      <div
-        className={`mt-4 ${isActive ? "animate-fade-slide-up" : "opacity-0"}`}
-        style={{ animationDelay: "0.4s", animationFillMode: "backwards" }}
+      {/* Bonus points */}
+      <motion.div
+        className="mt-4 inline-flex items-center gap-2 bg-gold-400 px-4 py-2 rounded-full shadow-sm"
+        variants={scaleIn}
+        transition={spring.bouncy}
       >
-        <div className="inline-flex items-center gap-2 bg-gradient-accent px-4 py-2 rounded-full shadow-sm">
-          <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2L14.09 8.26L20.5 9.27L15.75 13.97L16.82 20.5L12 17.77L7.18 20.5L8.25 13.97L3.5 9.27L9.91 8.26L12 2Z" />
-          </svg>
-          <span className="text-xl font-bold text-white">+50</span>
-          <span className="text-white/90 font-medium">puntos gratis</span>
-        </div>
-      </div>
+        <Star className="w-5 h-5 text-white" fill="currentColor" />
+        <span className="text-xl font-bold text-white">+50</span>
+        <span className="text-white/90 font-medium">puntos gratis</span>
+      </motion.div>
 
-      <p
-        className={`mt-4 text-gray-500 text-center max-w-xs ${
-          isActive ? "animate-fade-slide-up" : "opacity-0"
-        }`}
-        style={{ animationDelay: "0.6s", animationFillMode: "backwards" }}
+      <motion.p
+        className="mt-4 text-slate-500 text-center max-w-[280px]"
+        variants={fadeUp}
       >
         Acceso rápido sin buscar en el navegador
-      </p>
+      </motion.p>
 
       {/* Buttons */}
-      <div
-        className={`mt-10 w-full max-w-xs space-y-3 ${
-          isActive ? "animate-fade-slide-up" : "opacity-0"
-        }`}
-        style={{ animationDelay: "0.8s", animationFillMode: "backwards" }}
+      <motion.div
+        className="mt-10 w-full max-w-[280px] space-y-3"
+        variants={fadeUp}
       >
         {isInstallable ? (
-          <button
+          <motion.button
             onClick={handleInstall}
             disabled={isInstalling}
-            className="w-full py-4 bg-gradient-primary text-white rounded-full text-lg font-semibold shadow-glow btn-press animate-glow-pulse disabled:opacity-50 disabled:animate-none"
+            className="w-full py-4 bg-gradient-cta text-white rounded-full text-lg font-semibold shadow disabled:opacity-50"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={spring.snappy}
           >
             {isInstalling ? "Instalando..." : "Instalar App"}
-          </button>
+          </motion.button>
         ) : (
-          <button
+          <motion.button
             onClick={onComplete}
-            className="w-full py-4 bg-gradient-primary text-white rounded-full text-lg font-semibold shadow-glow btn-press"
+            className="w-full py-4 bg-gradient-cta text-white rounded-full text-lg font-semibold shadow"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={spring.snappy}
           >
             Continuar
-          </button>
+          </motion.button>
         )}
 
-        <button
-          onClick={handleSkipInstall}
-          className="w-full py-3 text-gray-400 text-center font-medium hover:text-gray-500 transition-colors"
+        <motion.button
+          onClick={onComplete}
+          className="w-full py-3 text-slate-400 text-center font-medium hover:text-slate-500 transition-colors"
+          whileTap={{ scale: 0.98 }}
         >
           Ahora no
-        </button>
-      </div>
-    </div>
+        </motion.button>
+      </motion.div>
+    </motion.div>
   );
 }

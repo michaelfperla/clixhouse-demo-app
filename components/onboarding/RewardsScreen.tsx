@@ -1,129 +1,128 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion, useSpring, useTransform } from "framer-motion";
+import { Star, Coffee, UtensilsCrossed, Gift } from "lucide-react";
+import { spring as springPresets, fadeUp, staggerContainer, scaleIn } from "@/lib/motion";
 
 interface RewardsScreenProps {
   isActive: boolean;
+  onComplete?: () => void;
 }
 
 export function RewardsScreen({ isActive }: RewardsScreenProps) {
-  const [displayPoints, setDisplayPoints] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
 
-  // Animate points counter when screen becomes active
+  // Spring-based number animation
+  const springValue = useSpring(0, { stiffness: 50, damping: 20 });
+  const displayPoints = useTransform(springValue, (value) => Math.round(value));
+  const [points, setPoints] = useState(0);
+
   useEffect(() => {
-    if (!isActive || hasAnimated) {
-      return;
+    if (isActive && !hasAnimated) {
+      setHasAnimated(true);
+      springValue.set(150);
     }
+  }, [isActive, hasAnimated, springValue]);
 
-    setHasAnimated(true);
-    const targetPoints = 150;
-    const duration = 1200;
-    const steps = 30;
-    const increment = targetPoints / steps;
-    const stepDuration = duration / steps;
-
-    let current = 0;
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= targetPoints) {
-        setDisplayPoints(targetPoints);
-        clearInterval(timer);
-      } else {
-        setDisplayPoints(Math.floor(current));
-      }
-    }, stepDuration);
-
-    return () => clearInterval(timer);
-  }, [isActive, hasAnimated]);
+  useEffect(() => {
+    const unsubscribe = displayPoints.on("change", (v) => setPoints(v));
+    return () => unsubscribe();
+  }, [displayPoints]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-8">
-      {/* Points display with golden accent */}
-      <div
-        className={`relative ${isActive ? "animate-fade-slide-up" : "opacity-0"}`}
-        style={{ animationFillMode: "backwards" }}
-      >
-        {/* Glow effect */}
-        <div className="absolute inset-0 bg-gradient-accent rounded-full blur-2xl opacity-40 scale-125" />
-
-        {/* Main counter circle */}
-        <div className="relative w-44 h-44 bg-gradient-accent rounded-full flex flex-col items-center justify-center shadow-elevated-lg">
-          {/* Points number */}
-          <span className="text-5xl font-bold text-white drop-shadow-sm">
-            {displayPoints}
-          </span>
-          <span className="text-sm font-semibold text-accent-100 uppercase tracking-wider">
+    <motion.div
+      className="flex flex-col items-center justify-center h-full px-6 bg-slate-50"
+      variants={staggerContainer(0.12)}
+      initial="hidden"
+      animate={isActive ? "visible" : "hidden"}
+    >
+      {/* Points display - golden circle */}
+      <motion.div className="relative" variants={scaleIn} transition={springPresets.bouncy}>
+        <motion.div
+          className="w-[176px] h-[176px] bg-gold-400 rounded-full flex flex-col items-center justify-center shadow-lg"
+          animate={isActive ? { scale: [1, 1.02, 1] } : {}}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+        >
+          <span className="text-5xl font-bold text-white">{points}</span>
+          <span className="text-sm font-semibold text-white/80 uppercase tracking-wider">
             puntos
           </span>
-        </div>
+        </motion.div>
 
         {/* Sparkle decorations */}
-        <div className="absolute -top-2 -right-1 animate-star-sparkle">
-          <svg className="w-8 h-8 text-accent-300" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2L14.09 8.26L20.5 9.27L15.75 13.97L16.82 20.5L12 17.77L7.18 20.5L8.25 13.97L3.5 9.27L9.91 8.26L12 2Z" />
-          </svg>
-        </div>
-        <div className="absolute -bottom-1 -left-2 animate-star-sparkle" style={{ animationDelay: "0.5s" }}>
-          <svg className="w-6 h-6 text-accent-400" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2L14.09 8.26L20.5 9.27L15.75 13.97L16.82 20.5L12 17.77L7.18 20.5L8.25 13.97L3.5 9.27L9.91 8.26L12 2Z" />
-          </svg>
-        </div>
-      </div>
+        <motion.div
+          className="absolute -top-2 -right-1"
+          animate={{ rotate: [0, 15, 0], scale: [1, 1.2, 1] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+        >
+          <Star className="w-8 h-8 text-gold-400" fill="currentColor" />
+        </motion.div>
+        <motion.div
+          className="absolute -bottom-1 -left-2"
+          animate={{ rotate: [0, -15, 0], scale: [1, 1.2, 1] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut", delay: 0.5 }}
+        >
+          <Star className="w-6 h-6 text-gold-500" fill="currentColor" />
+        </motion.div>
+      </motion.div>
 
       {/* Headline */}
-      <h2
-        className={`mt-10 text-3xl font-bold text-gray-900 text-center ${
-          isActive ? "animate-fade-slide-up" : "opacity-0"
-        }`}
-        style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
+      <motion.h2
+        className="mt-10 text-3xl font-heading font-bold text-slate-800 text-center"
+        variants={fadeUp}
       >
         Gana puntos
-      </h2>
+      </motion.h2>
 
       {/* Subheadline */}
-      <p
-        className={`mt-3 text-lg text-gray-500 text-center max-w-xs ${
-          isActive ? "animate-fade-slide-up" : "opacity-0"
-        }`}
-        style={{ animationDelay: "0.4s", animationFillMode: "backwards" }}
+      <motion.p
+        className="mt-2 text-lg text-slate-500 text-center max-w-[280px]"
+        variants={fadeUp}
       >
         Cada compra suma puntos canjeables por premios
-      </p>
+      </motion.p>
 
-      {/* Rewards preview - Polished cards */}
-      <div
-        className={`mt-8 flex gap-3 ${
-          isActive ? "animate-fade-slide-up" : "opacity-0"
-        }`}
-        style={{ animationDelay: "0.6s", animationFillMode: "backwards" }}
+      {/* Rewards preview */}
+      <motion.div
+        className="mt-8 flex gap-4"
+        variants={staggerContainer(0.08)}
       >
-        <RewardCard emoji="🥤" points={50} label="Bebida" />
-        <RewardCard emoji="🌮" points={100} label="Taco" />
-        <RewardCard emoji="🍽️" points={200} label="Plato" />
-      </div>
-    </div>
+        <RewardCard icon={Coffee} points={50} label="Bebida" />
+        <RewardCard icon={UtensilsCrossed} points={100} label="Taco" />
+        <RewardCard icon={Gift} points={200} label="Plato" />
+      </motion.div>
+    </motion.div>
   );
 }
 
 function RewardCard({
-  emoji,
+  icon: Icon,
   points,
   label,
 }: {
-  emoji: string;
+  icon: React.ComponentType<{ className?: string }>;
   points: number;
   label: string;
 }) {
   return (
-    <div className="flex flex-col items-center">
-      <div className="w-18 h-18 bg-white rounded-2xl flex items-center justify-center shadow-elevated border border-gray-100 p-4">
-        <span className="text-3xl">{emoji}</span>
-      </div>
+    <motion.div
+      className="flex flex-col items-center"
+      variants={fadeUp}
+      whileHover={{ y: -4 }}
+      transition={springPresets.snappy}
+    >
+      <motion.div
+        className="w-16 h-16 bg-white rounded-lg flex items-center justify-center shadow border border-slate-100"
+        whileHover={{ scale: 1.05 }}
+        transition={springPresets.snappy}
+      >
+        <Icon className="w-8 h-8 text-gold-600" />
+      </motion.div>
       <div className="mt-2 text-center">
-        <span className="block text-xs font-bold text-accent-600">{points} pts</span>
-        <span className="block text-xs text-gray-400">{label}</span>
+        <span className="block text-xs font-bold text-gold-600">{points} pts</span>
+        <span className="block text-xs text-slate-400">{label}</span>
       </div>
-    </div>
+    </motion.div>
   );
 }
