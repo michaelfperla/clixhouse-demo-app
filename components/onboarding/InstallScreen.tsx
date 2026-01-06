@@ -136,7 +136,7 @@ export function InstallScreen({ isActive, onComplete }: InstallScreenProps) {
         className={`mt-10 text-3xl font-bold text-gray-900 text-center ${
           isActive ? "animate-fade-slide-up" : "opacity-0"
         }`}
-        style={{ animationDelay: "0.1s", animationFillMode: "backwards" }}
+        style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
       >
         Agrega a tu pantalla
       </h2>
@@ -144,7 +144,7 @@ export function InstallScreen({ isActive, onComplete }: InstallScreenProps) {
       {/* Bonus points highlight with golden accent */}
       <div
         className={`mt-4 ${isActive ? "animate-fade-slide-up" : "opacity-0"}`}
-        style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
+        style={{ animationDelay: "0.4s", animationFillMode: "backwards" }}
       >
         <div className="inline-flex items-center gap-2 bg-gradient-accent px-4 py-2 rounded-full shadow-sm">
           <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
@@ -159,7 +159,7 @@ export function InstallScreen({ isActive, onComplete }: InstallScreenProps) {
         className={`mt-4 text-gray-500 text-center max-w-xs ${
           isActive ? "animate-fade-slide-up" : "opacity-0"
         }`}
-        style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}
+        style={{ animationDelay: "0.6s", animationFillMode: "backwards" }}
       >
         Acceso rápido sin buscar en el navegador
       </p>
@@ -169,7 +169,7 @@ export function InstallScreen({ isActive, onComplete }: InstallScreenProps) {
         className={`mt-10 w-full max-w-xs space-y-3 ${
           isActive ? "animate-fade-slide-up" : "opacity-0"
         }`}
-        style={{ animationDelay: "0.4s", animationFillMode: "backwards" }}
+        style={{ animationDelay: "0.8s", animationFillMode: "backwards" }}
       >
         {isInstallable ? (
           <button

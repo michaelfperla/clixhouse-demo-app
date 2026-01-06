@@ -10,8 +10,6 @@ import { InstallScreen } from "./InstallScreen";
 import { ProgressDots } from "./ProgressDots";
 import { SkipButton } from "./SkipButton";
 
-const AUTO_ADVANCE_DELAY = 2500; // 2.5 seconds for welcome screen
-
 export function OnboardingFlow() {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -31,16 +29,6 @@ export function OnboardingFlow() {
     skipOnboarding(currentScreen);
     router.push("/menu");
   }, [currentScreen, skipOnboarding, router]);
-
-  // Auto-advance from welcome screen
-  useEffect(() => {
-    if (currentScreen === 0) {
-      const timer = setTimeout(() => {
-        scrollToScreen(1);
-      }, AUTO_ADVANCE_DELAY);
-      return () => clearTimeout(timer);
-    }
-  }, [currentScreen]);
 
   // Track scroll position to update current screen
   useEffect(() => {

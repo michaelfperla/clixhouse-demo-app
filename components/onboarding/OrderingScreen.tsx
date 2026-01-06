@@ -46,7 +46,7 @@ export function OrderingScreen({ isActive }: OrderingScreenProps) {
         className={`mt-10 text-3xl font-bold text-gray-900 text-center ${
           isActive ? "animate-fade-slide-up" : "opacity-0"
         }`}
-        style={{ animationDelay: "0.1s", animationFillMode: "backwards" }}
+        style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
       >
         Pide sin filas
       </h2>
@@ -56,7 +56,7 @@ export function OrderingScreen({ isActive }: OrderingScreenProps) {
         className={`mt-3 text-lg text-gray-500 text-center max-w-xs ${
           isActive ? "animate-fade-slide-up" : "opacity-0"
         }`}
-        style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
+        style={{ animationDelay: "0.4s", animationFillMode: "backwards" }}
       >
         Ordena desde tu mesa o para llevar, sin esperar
       </p>
@@ -66,7 +66,7 @@ export function OrderingScreen({ isActive }: OrderingScreenProps) {
         className={`mt-8 space-y-4 ${
           isActive ? "animate-fade-slide-up" : "opacity-0"
         }`}
-        style={{ animationDelay: "0.35s", animationFillMode: "backwards" }}
+        style={{ animationDelay: "0.6s", animationFillMode: "backwards" }}
       >
         <FeatureItem
           icon={

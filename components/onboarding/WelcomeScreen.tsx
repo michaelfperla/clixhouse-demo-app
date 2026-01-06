@@ -49,7 +49,7 @@ export function WelcomeScreen({ isActive }: WelcomeScreenProps) {
           className={`text-lg font-medium text-gray-500 tracking-wide ${
             isActive ? "animate-fade-slide-up" : "opacity-0"
           }`}
-          style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
+          style={{ animationDelay: "0.4s", animationFillMode: "backwards" }}
         >
           Bienvenido a
         </p>
@@ -58,7 +58,7 @@ export function WelcomeScreen({ isActive }: WelcomeScreenProps) {
           className={`mt-1 text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent ${
             isActive ? "animate-fade-slide-up" : "opacity-0"
           }`}
-          style={{ animationDelay: "0.35s", animationFillMode: "backwards" }}
+          style={{ animationDelay: "0.6s", animationFillMode: "backwards" }}
         >
           Tu Restaurante
         </h1>
@@ -69,7 +69,7 @@ export function WelcomeScreen({ isActive }: WelcomeScreenProps) {
         className={`mt-12 flex flex-col items-center ${
           isActive ? "animate-fade-slide-up" : "opacity-0"
         }`}
-        style={{ animationDelay: "0.6s", animationFillMode: "backwards" }}
+        style={{ animationDelay: "1s", animationFillMode: "backwards" }}
       >
         <p className="text-sm text-gray-400 mb-2">
           Desliza para continuar

@@ -28,8 +28,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
+    <html lang="es" translate="no">
       <head>
+        <meta name="google" content="notranslate" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body className="bg-primary-50 min-h-screen antialiased">

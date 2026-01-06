@@ -76,7 +76,7 @@ export function RewardsScreen({ isActive }: RewardsScreenProps) {
         className={`mt-10 text-3xl font-bold text-gray-900 text-center ${
           isActive ? "animate-fade-slide-up" : "opacity-0"
         }`}
-        style={{ animationDelay: "0.1s", animationFillMode: "backwards" }}
+        style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
       >
         Gana puntos
       </h2>
@@ -86,7 +86,7 @@ export function RewardsScreen({ isActive }: RewardsScreenProps) {
         className={`mt-3 text-lg text-gray-500 text-center max-w-xs ${
           isActive ? "animate-fade-slide-up" : "opacity-0"
         }`}
-        style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
+        style={{ animationDelay: "0.4s", animationFillMode: "backwards" }}
       >
         Cada compra suma puntos canjeables por premios
       </p>
@@ -96,7 +96,7 @@ export function RewardsScreen({ isActive }: RewardsScreenProps) {
         className={`mt-8 flex gap-3 ${
           isActive ? "animate-fade-slide-up" : "opacity-0"
         }`}
-        style={{ animationDelay: "0.35s", animationFillMode: "backwards" }}
+        style={{ animationDelay: "0.6s", animationFillMode: "backwards" }}
       >
         <RewardCard emoji="🥤" points={50} label="Bebida" />
         <RewardCard emoji="🌮" points={100} label="Taco" />
