@@ -57,7 +57,7 @@ export function OnboardingFlow() {
   };
 
   return (
-    <div className="fixed inset-0 bg-primary-50 z-50">
+    <div className="fixed inset-0 bg-[#fff7ed] z-50">
       {/* Skip button (hidden on last screen) */}
       {currentScreen < totalScreens - 1 && <SkipButton onClick={handleSkip} />}
 
