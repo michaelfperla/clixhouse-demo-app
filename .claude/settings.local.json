@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:serwist.pages.dev)",
+      "WebFetch(domain:zustand.docs.pmnd.rs)",
+      "Bash(bun remove:*)",
+      "Bash(bun add:*)",
+      "Bash(timeout 30 bun dev:*)",
+      "Bash(timeout 20 bun dev:*)",
+      "Bash(bun build:*)",
+      "Bash(bun run build)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nInitial commit: CLIXHOUSE demo PWA with world-class onboarding\n\n- Next.js 16 with Serwist PWA support\n- 4-screen onboarding flow \\(Welcome, Ordering, Rewards, Install\\)\n- Premium animations with spring physics\n- Confetti celebration on install\n- Golden accent rewards system\n- iOS install guide\n- Zustand state management with persistence\n- Spanish language UI for Mexican market\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}
