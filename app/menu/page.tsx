@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePointsStore } from "@/lib/stores/points-store";
 import { useOnboardingStore } from "@/lib/stores/onboarding-store";
@@ -9,14 +9,30 @@ import { CATEGORIES, MENU_ITEMS, type Category, type MenuItem } from "@/lib/menu
 import { BottomNav } from "@/components/navigation/BottomNav";
 
 export default function MenuPage() {
-  const { points } = usePointsStore();
+  const { points: actualPoints } = usePointsStore();
   const { reset } = useOnboardingStore();
   const { reset: resetPoints } = usePointsStore();
   const { reset: resetCart } = useCartStore();
   const addItem = useCartStore((state) => state.addItem);
+  const cartPoints = useCartStore((state) => state.totalPoints());
+
+  // Preview: show actual points + what they'd earn from cart
+  const displayPoints = actualPoints + cartPoints;
 
   const [activeCategory, setActiveCategory] = useState<Category>("todos");
   const [addedItemId, setAddedItemId] = useState<string | null>(null);
+  const [pointsAnimating, setPointsAnimating] = useState(false);
+  const prevPointsRef = useRef(displayPoints);
+
+  // Animate points when they increase
+  useEffect(() => {
+    if (displayPoints > prevPointsRef.current) {
+      setPointsAnimating(true);
+      const timer = setTimeout(() => setPointsAnimating(false), 400);
+      return () => clearTimeout(timer);
+    }
+    prevPointsRef.current = displayPoints;
+  }, [displayPoints]);
 
   const handleResetDemo = () => {
     reset();
@@ -49,10 +65,14 @@ export default function MenuPage() {
           </div>
           <Link
             href="/points"
-            className="flex items-center gap-2 bg-accent-100 px-3 py-1.5 rounded-full"
+            className={`flex items-center gap-2 bg-accent-100 px-3 py-1.5 rounded-full transition-transform ${
+              pointsAnimating ? "scale-110" : ""
+            }`}
           >
-            <span className="text-lg">⭐</span>
-            <span className="font-bold text-accent-700">{points}</span>
+            <span className={`text-lg ${pointsAnimating ? "animate-star-sparkle" : ""}`}>⭐</span>
+            <span className={`font-bold text-accent-700 transition-all ${
+              pointsAnimating ? "text-accent-500 scale-125" : ""
+            }`}>{displayPoints}</span>
             <span className="text-sm text-accent-600">pts</span>
           </Link>
         </div>

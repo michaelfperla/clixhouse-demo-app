@@ -1,6 +1,7 @@
 "use client";
 
 import { usePointsStore } from "@/lib/stores/points-store";
+import { useCartStore } from "@/lib/stores/cart-store";
 import { BottomNav } from "@/components/navigation/BottomNav";
 
 const REWARDS = [
@@ -35,7 +36,11 @@ const REWARDS = [
 ];
 
 export default function PointsPage() {
-  const { points } = usePointsStore();
+  const { points: actualPoints } = usePointsStore();
+  const cartPoints = useCartStore((state) => state.totalPoints());
+
+  // Preview: show actual points + what they'd earn from cart
+  const displayPoints = actualPoints + cartPoints;
 
   return (
     <div className="min-h-screen bg-primary-50 pb-20">
@@ -47,13 +52,18 @@ export default function PointsPage() {
         <div className="text-center">
           <div className="inline-block relative">
             <span className="text-7xl font-bold text-white animate-bounce-in">
-              {points}
+              {displayPoints}
             </span>
             <span className="absolute -top-2 -right-6 text-3xl animate-star-sparkle">
               ⭐
             </span>
           </div>
           <p className="text-white/80 text-lg mt-2">PUNTOS</p>
+          {cartPoints > 0 && (
+            <p className="text-white/60 text-sm mt-1">
+              (+{cartPoints} pendientes en carrito)
+            </p>
+          )}
         </div>
       </header>
 
@@ -66,8 +76,10 @@ export default function PointsPage() {
 
           <div className="space-y-4">
             {REWARDS.map((reward, index) => {
-              const canRedeem = points >= reward.points;
-              const progress = Math.min((points / reward.points) * 100, 100);
+              // Can only redeem with actual points (not cart preview)
+              const canRedeem = actualPoints >= reward.points;
+              // But show progress including cart points for motivation
+              const progress = Math.min((displayPoints / reward.points) * 100, 100);
 
               return (
                 <div
@@ -119,7 +131,7 @@ export default function PointsPage() {
                             />
                           </div>
                           <p className="text-xs text-gray-400 mt-1">
-                            {points}/{reward.points} puntos
+                            {displayPoints}/{reward.points} puntos
                           </p>
                         </div>
                       )}

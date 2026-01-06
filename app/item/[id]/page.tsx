@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getMenuItemById } from "@/lib/menu-data";
 import { useCartStore } from "@/lib/stores/cart-store";
@@ -9,11 +9,27 @@ import { usePointsStore } from "@/lib/stores/points-store";
 export default function ItemDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { points } = usePointsStore();
+  const { points: actualPoints } = usePointsStore();
   const addItem = useCartStore((state) => state.addItem);
+  const cartPoints = useCartStore((state) => state.totalPoints());
+
+  // Preview: show actual points + what they'd earn from cart
+  const displayPoints = actualPoints + cartPoints;
 
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
+  const [pointsAnimating, setPointsAnimating] = useState(false);
+  const prevPointsRef = useRef(displayPoints);
+
+  // Animate points when they increase
+  useEffect(() => {
+    if (displayPoints > prevPointsRef.current) {
+      setPointsAnimating(true);
+      const timer = setTimeout(() => setPointsAnimating(false), 400);
+      return () => clearTimeout(timer);
+    }
+    prevPointsRef.current = displayPoints;
+  }, [displayPoints]);
 
   const item = getMenuItemById(params.id as string);
 
@@ -69,9 +85,13 @@ export default function ItemDetailPage() {
         </button>
 
         {/* Points Badge */}
-        <div className="absolute top-4 right-4 flex items-center gap-2 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full shadow-lg">
-          <span className="text-lg">⭐</span>
-          <span className="font-bold text-accent-700">{points}</span>
+        <div className={`absolute top-4 right-4 flex items-center gap-2 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full shadow-lg transition-transform ${
+          pointsAnimating ? "scale-110" : ""
+        }`}>
+          <span className={`text-lg ${pointsAnimating ? "animate-star-sparkle" : ""}`}>⭐</span>
+          <span className={`font-bold text-accent-700 transition-all ${
+            pointsAnimating ? "text-accent-500 scale-125" : ""
+          }`}>{displayPoints}</span>
         </div>
 
         {/* Emoji */}
