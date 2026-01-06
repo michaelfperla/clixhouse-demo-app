@@ -68,22 +68,22 @@ export function OnboardingFlow() {
         style={{ scrollBehavior: "smooth" }}
       >
         {/* Screen 1: Welcome */}
-        <div className="flex-shrink-0 w-full h-full snap-center">
+        <div className="flex-shrink-0 w-full h-full snap-center" style={{ scrollSnapStop: "always" }}>
           <WelcomeScreen isActive={currentScreen === 0} />
         </div>
 
         {/* Screen 2: Ordering */}
-        <div className="flex-shrink-0 w-full h-full snap-center">
+        <div className="flex-shrink-0 w-full h-full snap-center" style={{ scrollSnapStop: "always" }}>
           <OrderingScreen isActive={currentScreen === 1} />
         </div>
 
         {/* Screen 3: Rewards */}
-        <div className="flex-shrink-0 w-full h-full snap-center">
+        <div className="flex-shrink-0 w-full h-full snap-center" style={{ scrollSnapStop: "always" }}>
           <RewardsScreen isActive={currentScreen === 2} />
         </div>
 
         {/* Screen 4: Install */}
-        <div className="flex-shrink-0 w-full h-full snap-center">
+        <div className="flex-shrink-0 w-full h-full snap-center" style={{ scrollSnapStop: "always" }}>
           <InstallScreen
             isActive={currentScreen === 3}
             onComplete={handleComplete}
