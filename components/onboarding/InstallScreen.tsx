@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { useOnboardingStore } from "@/lib/stores/onboarding-store";
 import { usePointsStore } from "@/lib/stores/points-store";
@@ -16,7 +16,19 @@ export function InstallScreen({ isActive, onComplete }: InstallScreenProps) {
   const { isInstallable, isIOS, isInstalled, prompt } = usePWAInstall();
 
   // Debug info - remove after fixing
-  const debugInfo = `installable: ${isInstallable}, iOS: ${isIOS}, installed: ${isInstalled}, prompt: ${typeof window !== 'undefined' && !!window.__pwaInstallPrompt}`;
+  const [swStatus, setSwStatus] = useState("checking...");
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        setSwStatus(reg ? `SW: active` : "SW: none");
+      }).catch(() => setSwStatus("SW: error"));
+    } else {
+      setSwStatus("SW: unsupported");
+    }
+  }, []);
+
+  const debugInfo = `${swStatus}, installable: ${isInstallable}, iOS: ${isIOS}, prompt: ${typeof window !== 'undefined' && !!window.__pwaInstallPrompt}`;
   const { markInstalled } = useOnboardingStore();
   const { awardInstallBonus } = usePointsStore();
   const [isInstalling, setIsInstalling] = useState(false);
