@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Tu Restaurante",
-    short_name: "Restaurante",
+    name: "CLIXHOUSE Restaurant",
+    short_name: "CLIXHOUSE",
     description: "Pide comida desde tu celular",
     start_url: "/",
     display: "standalone",

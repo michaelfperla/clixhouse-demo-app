@@ -60,8 +60,16 @@ export function WelcomeScreen({ isActive }: WelcomeScreenProps) {
           }`}
           style={{ animationDelay: "0.6s", animationFillMode: "backwards" }}
         >
-          Tu Restaurante
+          CLIXHOUSE
         </h1>
+        <p
+          className={`text-sm font-medium text-gray-400 tracking-widest uppercase ${
+            isActive ? "animate-fade-slide-up" : "opacity-0"
+          }`}
+          style={{ animationDelay: "0.7s", animationFillMode: "backwards" }}
+        >
+          Restaurant
+        </p>
       </div>
 
       {/* Swipe hint with animation */}

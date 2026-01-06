@@ -2,12 +2,12 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Tu Restaurante",
+  title: "CLIXHOUSE Restaurant",
   description: "Pide comida desde tu celular",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Tu Restaurante",
+    title: "CLIXHOUSE",
   },
   formatDetection: {
     telephone: false,
