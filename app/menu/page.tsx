@@ -8,6 +8,8 @@ import { useCartStore } from "@/lib/stores/cart-store";
 import { CATEGORIES, MENU_ITEMS, type Category, type MenuItem } from "@/lib/menu-data";
 import { BottomNav } from "@/components/navigation/BottomNav";
 
+const PROMO_DISMISSED_KEY = "clixhouse-promo-dismissed";
+
 export default function MenuPage() {
   const { points: actualPoints } = usePointsStore();
   const { reset } = useOnboardingStore();
@@ -22,7 +24,21 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("todos");
   const [addedItemId, setAddedItemId] = useState<string | null>(null);
   const [pointsAnimating, setPointsAnimating] = useState(false);
+  const [showPromo, setShowPromo] = useState(false);
   const prevPointsRef = useRef(displayPoints);
+
+  // Check if promo was dismissed
+  useEffect(() => {
+    const dismissed = localStorage.getItem(PROMO_DISMISSED_KEY);
+    if (!dismissed) {
+      setShowPromo(true);
+    }
+  }, []);
+
+  const handleDismissPromo = () => {
+    setShowPromo(false);
+    localStorage.setItem(PROMO_DISMISSED_KEY, "true");
+  };
 
   // Animate points when they increase
   useEffect(() => {
@@ -38,6 +54,7 @@ export default function MenuPage() {
     reset();
     resetPoints();
     resetCart();
+    localStorage.removeItem(PROMO_DISMISSED_KEY);
     window.location.href = "/";
   };
 
@@ -77,6 +94,29 @@ export default function MenuPage() {
           </Link>
         </div>
       </header>
+
+      {/* Promo Banner */}
+      {showPromo && (
+        <div className="mx-4 mt-4 bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl p-3 shadow-md animate-fade-slide-up">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🎉</span>
+              <span className="text-white font-semibold text-sm">
+                ¡10% OFF en tu primera orden!
+              </span>
+            </div>
+            <button
+              onClick={handleDismissPromo}
+              className="text-white/70 hover:text-white p-1"
+              aria-label="Cerrar promoción"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Menu Content */}
       <main className="px-4 py-6">
