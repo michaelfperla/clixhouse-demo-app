@@ -54,7 +54,7 @@ export default function OrderPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {showConfetti && <Confetti />}
+      <Confetti isActive={showConfetti} />
 
       {/* Success Circle */}
       <div className="relative mb-8">
